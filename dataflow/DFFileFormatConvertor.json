@@ -1,0 +1,73 @@
+{
+	"name": "DFFileFormatConvertor",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "OrdersCSV",
+						"type": "DatasetReference"
+					},
+					"name": "OrdersCSV"
+				},
+				{
+					"dataset": {
+						"referenceName": "OrderItemCSV",
+						"type": "DatasetReference"
+					},
+					"name": "OrdersItemCSV"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "OrdersParquet",
+						"type": "DatasetReference"
+					},
+					"name": "OrdersParquet"
+				},
+				{
+					"dataset": {
+						"referenceName": "OrdersItemParquet",
+						"type": "DatasetReference"
+					},
+					"name": "OrdersItemParquest"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          order_id as integer,",
+				"          order_date as timestamp,",
+				"          order_customer_id as integer,",
+				"          order_status as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> OrdersCSV",
+				"source(output(",
+				"          order_item_id as integer,",
+				"          order_item_order_id as integer,",
+				"          order_item_product_id as integer,",
+				"          order_item_quantity as integer,",
+				"          order_item_subtotal as float,",
+				"          order_item_product_price as float",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> OrdersItemCSV",
+				"OrdersCSV sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> OrdersParquet",
+				"OrdersItemCSV sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> OrdersItemParquest"
+			]
+		}
+	}
+}

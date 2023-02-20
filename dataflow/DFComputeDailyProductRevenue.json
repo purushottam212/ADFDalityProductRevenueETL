@@ -1,0 +1,81 @@
+{
+	"name": "DFComputeDailyProductRevenue",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "OrdersCSV",
+						"type": "DatasetReference"
+					},
+					"name": "Orders"
+				},
+				{
+					"dataset": {
+						"referenceName": "OrderItemCSV",
+						"type": "DatasetReference"
+					},
+					"name": "OrderItems"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DailyProductRevenueParquet",
+						"type": "DatasetReference"
+					},
+					"name": "DailyProductRevenueParquet"
+				}
+			],
+			"transformations": [
+				{
+					"name": "OrderStatusFilter"
+				},
+				{
+					"name": "OrdersJoinsOrderitems"
+				},
+				{
+					"name": "DailyProductReveue"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          order_id as integer,",
+				"          order_date as timestamp,",
+				"          order_customer_id as integer,",
+				"          order_status as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Orders",
+				"source(output(",
+				"          order_item_id as integer,",
+				"          order_item_order_id as integer,",
+				"          order_item_product_id as integer,",
+				"          order_item_quantity as integer,",
+				"          order_item_subtotal as float,",
+				"          order_item_product_price as float",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> OrderItems",
+				"Orders filter(in(['COMPLETE','CLOSED'],order_status)) ~> OrderStatusFilter",
+				"OrderStatusFilter, OrderItems join(order_id == order_item_order_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> OrdersJoinsOrderitems",
+				"OrdersJoinsOrderitems aggregate(groupBy(order_date,",
+				"          order_item_product_id),",
+				"     daily_revenue = round(sum(order_item_subtotal),2)) ~> DailyProductReveue",
+				"DailyProductReveue sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1) ~> DailyProductRevenueParquet"
+			]
+		}
+	}
+}

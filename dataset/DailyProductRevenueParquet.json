@@ -1,0 +1,21 @@
+{
+	"name": "DailyProductRevenueParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LSAbzRetail",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "retail_db/daily_product_revenue",
+				"container": "abzreatilcontainer"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

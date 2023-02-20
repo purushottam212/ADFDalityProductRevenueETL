@@ -1,0 +1,9 @@
+{
+	"name": "AdfAbzRetail",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "efcd62af-d1b9-439b-88d8-68ac19a3efae",
+		"tenantId": "3617ef9b-98b4-40d9-ba43-e1ed6709cf0d"
+	}
+}
